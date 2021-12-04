@@ -1,18 +1,16 @@
-CC = g++
-CFLAGS = -Wall -std=c++11 -O2
+CXX = g++
+CXXFLAGS = -Wall -Werror -Wextra -pedantic -std=c++11 -O2 -lgtest -lpthread
 
-.PHONY: clean all run
+TEST = test_autodiff
+.PHONY: all clean test
 
-all: main
+all: $(TEST)
 
-main.o: main.cpp node.hpp
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-main: main.o 
-	$(CC) $(CFLAGS) -o $@ $^
+$(TEST): $(TEST).cpp autodiff.hpp
+	$(CXX) $< -o $@ $(CXXFLAGS)
 
 clean:
-	rm -rf *.o main
+	rm -rf *.o $(TEST)
 
-run: main
-	./main
+test: $(TEST)
+	./$(TEST)
