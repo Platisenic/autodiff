@@ -1,0 +1,24 @@
+name: autodiff CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: dependency
+      run: |
+        sudo apt-get -q update
+        sudo apt-get -qy install \
+            curl build-essential make cmake gcc g++ libgtest-dev
+    - name: make
+      run: make
+    - name: make test
+      run: make test
