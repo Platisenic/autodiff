@@ -11,6 +11,11 @@ struct Node{
     virtual void prop(const double &output) = 0;
 };
 
+struct ConstantNode: Node{
+    ConstantNode(const double &v) : Node(v) {}
+    void prop(const double & /*output*/) override { /* do nothing */ }
+};
+
 struct VarNode : Node{
     double grad;
 
@@ -28,8 +33,8 @@ struct BinaryOpNode: Node{
     std::shared_ptr<Node> left, right;
 
     BinaryOpNode(const double &v,
-        const std::shared_ptr<Node> l,
-        const std::shared_ptr<Node> r) :
+        const std::shared_ptr<Node> &l,
+        const std::shared_ptr<Node> &r) :
         Node(v),
         left(l),
         right(r)
@@ -38,8 +43,8 @@ struct BinaryOpNode: Node{
 
 struct AddOpNode: BinaryOpNode{
     AddOpNode(const double &v,
-        const std::shared_ptr<Node> l,
-        const std::shared_ptr<Node> r) :
+        const std::shared_ptr<Node> &l,
+        const std::shared_ptr<Node> &r) :
         BinaryOpNode(v, l, r)
         {}
 
@@ -51,8 +56,8 @@ struct AddOpNode: BinaryOpNode{
 
 struct SubOpNode: BinaryOpNode{
     SubOpNode(const double &v,
-        const std::shared_ptr<Node> l,
-        const std::shared_ptr<Node> r) :
+        const std::shared_ptr<Node> &l,
+        const std::shared_ptr<Node> &r) :
         BinaryOpNode(v, l, r)
         {}
 
@@ -64,8 +69,8 @@ struct SubOpNode: BinaryOpNode{
 
 struct MulOpNode: BinaryOpNode{
     MulOpNode(const double &v,
-        const std::shared_ptr<Node> l,
-        const std::shared_ptr<Node> r) :
+        const std::shared_ptr<Node> &l,
+        const std::shared_ptr<Node> &r) :
         BinaryOpNode(v, l, r)
         {}
 
@@ -77,8 +82,8 @@ struct MulOpNode: BinaryOpNode{
 
 struct DivOpNode: BinaryOpNode{
     DivOpNode(const double &v,
-        const std::shared_ptr<Node> l,
-        const std::shared_ptr<Node> r) :
+        const std::shared_ptr<Node> &l,
+        const std::shared_ptr<Node> &r) :
         BinaryOpNode(v, l, r)
         {}
 
@@ -88,4 +93,52 @@ struct DivOpNode: BinaryOpNode{
         right->prop(recRight * recRight * (-left->value) * output);
     }
 };
+
+std::shared_ptr<Node> operator+(const std::shared_ptr<Node> &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<AddOpNode>(l->value + r->value, l, r);
+}
+
+std::shared_ptr<Node> operator+(const std::shared_ptr<Node> &l, const double &r) {
+    return std::make_shared<AddOpNode>(l->value + r, l, std::make_shared<ConstantNode>(r));
+}
+
+std::shared_ptr<Node> operator+(const double &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<AddOpNode>(l + r->value, std::make_shared<ConstantNode>(l), r);
+}
+
+std::shared_ptr<Node> operator-(const std::shared_ptr<Node> &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<SubOpNode>(l->value - r->value, l, r);
+}
+
+std::shared_ptr<Node> operator-(const std::shared_ptr<Node> &l, const double &r) {
+    return std::make_shared<SubOpNode>(l->value - r, l, std::make_shared<ConstantNode>(r));
+}
+
+std::shared_ptr<Node> operator-(const double &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<SubOpNode>(l - r->value, std::make_shared<ConstantNode>(l), r);
+}
+
+std::shared_ptr<Node> operator*(const std::shared_ptr<Node> &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<MulOpNode>(l->value * r->value, l, r);
+}
+
+std::shared_ptr<Node> operator*(const std::shared_ptr<Node> &l, const double &r) {
+    return std::make_shared<MulOpNode>(l->value * r, l, std::make_shared<ConstantNode>(r));
+}
+
+std::shared_ptr<Node> operator*(const double &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<MulOpNode>(l * r->value, std::make_shared<ConstantNode>(l), r);
+}
+
+std::shared_ptr<Node> operator/(const std::shared_ptr<Node> &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<DivOpNode>(l->value / r->value, l, r);
+}
+
+std::shared_ptr<Node> operator/(const std::shared_ptr<Node> &l, const double &r) {
+    return std::make_shared<DivOpNode>(l->value / r, l, std::make_shared<ConstantNode>(r));
+}
+
+std::shared_ptr<Node> operator/(const double &l, const std::shared_ptr<Node> &r) {
+    return std::make_shared<DivOpNode>(l / r->value, std::make_shared<ConstantNode>(l), r);
+}
 
