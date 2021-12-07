@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "autodiff.hpp"
+#include <autodiff/autodiff.hpp>
 
 using namespace autodiff;
 
