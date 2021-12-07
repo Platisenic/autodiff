@@ -3,7 +3,7 @@
 #include <memory>
 #include <autodiff/node.hpp>
 
-namespace autodiff{
+namespace autodiff {
 
     std::shared_ptr<Node> operator+(const std::shared_ptr<Node> &l, const std::shared_ptr<Node> &r) {
         return std::make_shared<AddOpNode>(l->value + r->value, l, r);
@@ -61,4 +61,4 @@ namespace autodiff{
         return std::make_shared<DivOpNode>(l / r->value, std::make_shared<ConstantNode>(l), r);
     }
 
-}
+}  // namespace autodiff

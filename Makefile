@@ -15,3 +15,6 @@ clean:
 
 test: $(TEST)
 	./$(TEST)
+
+lint: 
+	cpplint --filter=-legal/copyright --linelength=120 $(PROJECTFILES) 
