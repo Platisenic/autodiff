@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <autodiff/autodiff.hpp>
+#include <vector>
+#include <cmath>
 
 using namespace autodiff;
 
@@ -135,6 +137,23 @@ TEST(AutoDiffTest, AbsOpNodeTest) {
   abs_a->prop(1.0);
   EXPECT_NEAR(abs_a->value, 5.0, 1e-10);
   EXPECT_NEAR(a->grad, -1.0, 1e-10);
+}
+
+TEST(AutoDiffTest, VariableTest) {
+  std::vector<Variable> inputs { Variable(1.0), Variable(2.0), Variable(M_PI) };
+  Variable output;
+  output = inputs[0] + inputs[1];
+  EXPECT_NEAR(output.values(), 3.0, 1e-10);
+  output = inputs[0] - inputs[1];
+  EXPECT_NEAR(output.values(), -1.0, 1e-10);
+  output = inputs[0] * inputs[1];
+  EXPECT_NEAR(output.values(), 2.0, 1e-10);
+  output = inputs[0] / inputs[1];
+  EXPECT_NEAR(output.values(), 0.5, 1e-10);
+  output = inputs[0] * inputs[1] + inputs[0];
+  EXPECT_NEAR(output.values(), 3.0, 1e-10);
+  output = sin(inputs[2]);
+  EXPECT_NEAR(output.values(), 0, 1e-10);
 }
 
 int main(int argc, char **argv) {

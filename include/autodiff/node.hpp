@@ -10,6 +10,8 @@ struct Node {
 
     explicit Node(const double &v): value(v) {}
     ~Node() {}
+    virtual double getGradient() { return 0.0; }
+    virtual void setGradient(const double &) {}
     virtual void prop(const double &output) = 0;
 };
 
@@ -22,12 +24,28 @@ struct VarNode : Node {
     double grad;
 
     explicit VarNode(const double &v): Node(v), grad(0.0) {}
+    virtual double getGradient() { return grad; }
+    virtual void setGradient(const double &g) { grad = g; }
 };
 
 struct IndVarNode: VarNode {
     explicit IndVarNode(const double &v): VarNode(v) {}
     void prop(const double &output) override{
         grad += output;
+    }
+};
+
+struct DepVarNode: VarNode {
+    std::shared_ptr<Node> m;
+
+    explicit DepVarNode(const std::shared_ptr<Node> m) :
+        VarNode(m->value),
+        m(m)
+        {}
+
+    void prop(const double &output) override{
+        grad += output;
+        m->prop(output);
     }
 };
 

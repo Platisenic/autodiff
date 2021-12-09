@@ -34,4 +34,32 @@ std::shared_ptr<Node> abs(const std::shared_ptr<Node> &l) {
     return std::make_shared<AbsOpNode>(std::abs(l->value), l);
 }
 
+std::shared_ptr<Node> sin(const Variable &l) {
+    return sin(l.VarNodePtr);
+}
+
+std::shared_ptr<Node> cos(const Variable &l) {
+    return cos(l.VarNodePtr);
+}
+
+std::shared_ptr<Node> tan(const Variable &l) {
+    return tan(l.VarNodePtr);
+}
+
+std::shared_ptr<Node> exp(const Variable &l) {
+    return exp(l.VarNodePtr);
+}
+
+std::shared_ptr<Node> log(const Variable &l) {
+    return log(l.VarNodePtr);
+}
+
+std::shared_ptr<Node> sqrt(const Variable &l) {
+    return sqrt(l.VarNodePtr);
+}
+
+std::shared_ptr<Node> abs(const Variable &l) {
+    return abs(l.VarNodePtr);
+}
+
 }  // namespace autodiff
