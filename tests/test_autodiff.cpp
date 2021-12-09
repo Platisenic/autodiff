@@ -156,6 +156,19 @@ TEST(AutoDiffTest, VariableTest) {
   EXPECT_NEAR(output.values(), 0, 1e-10);
 }
 
+TEST(AutoDiffTest, calculateGradientTest) {
+  std::vector<Variable> inputs { Variable(1.0), Variable(2.0), Variable(M_PI) };
+  Variable output = log(exp(inputs[0] * inputs[1] + sin(inputs[2])));
+  std::vector<double> goldens { 2.0, 1.0, -1.0 };
+
+  std::vector<double> gradients = calcluateGradient(output, inputs);
+
+  for (size_t i=0; i < gradients.size(); i++) {
+    EXPECT_NEAR(goldens[i], gradients[i], 1e-10);
+  }
+  EXPECT_NEAR(output.values(), 2.0, 1e-10);
+}
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

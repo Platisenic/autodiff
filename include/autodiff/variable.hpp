@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <autodiff/node.hpp>
 #include <vector>
+#include <autodiff/node.hpp>
 
 namespace autodiff {
 
@@ -13,11 +13,11 @@ struct Variable {
 
     Variable(const Variable &o) : Variable(o.VarNodePtr) {}
 
-    explicit Variable(const std::shared_ptr<Node> &v) :
+    Variable(const std::shared_ptr<Node> &v) :
         VarNodePtr(std::make_shared<DepVarNode>(v))
         {}
 
-    explicit Variable(const double &v) :
+    Variable(const double &v) :
         VarNodePtr(std::make_shared<IndVarNode>(v))
         {}
 
@@ -41,5 +41,16 @@ struct Variable {
         return VarNodePtr->value;
     }
 };
+
+std::vector<double> calcluateGradient(Variable &output, std::vector<Variable> &inputs) {
+    output.VarNodePtr->prop(1.0);
+    std::vector<double> gradients;
+    gradients.reserve(inputs.size());
+    for (auto &input : inputs) {
+        gradients.push_back(input.VarNodePtr->getGradient());
+        input.VarNodePtr->setGradient(0.0);
+    }
+    return gradients;
+}
 
 }  // namespace autodiff
