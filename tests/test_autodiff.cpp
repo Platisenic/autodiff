@@ -156,17 +156,70 @@ TEST(AutoDiffTest, VariableTest) {
   EXPECT_NEAR(output.values(), 0, 1e-10);
 }
 
-TEST(AutoDiffTest, calculateGradientTest) {
-  std::vector<Variable> inputs { Variable(1.0), Variable(2.0), Variable(M_PI) };
-  Variable output = log(exp(inputs[0] * inputs[1] + sin(inputs[2])));
-  std::vector<double> goldens { 2.0, 1.0, -1.0 };
-
-  std::vector<double> gradients = calcluateGradient(output, inputs);
-
-  for (size_t i=0; i < gradients.size(); i++) {
-    EXPECT_NEAR(goldens[i], gradients[i], 1e-10);
-  }
+TEST(AutoDiffTest, VectorTest) {
+  Vector m(3); m[0] = 1.0; m[1] = 2.0; m[2] = M_PI;
+  Variable output;
+  output = m[0] + m[1];
+  EXPECT_NEAR(output.values(), 3.0, 1e-10);
+  output = m[0] - m[1];
+  EXPECT_NEAR(output.values(), -1.0, 1e-10);
+  output = m[0] * m[1];
   EXPECT_NEAR(output.values(), 2.0, 1e-10);
+  output = m[0] / m[1];
+  EXPECT_NEAR(output.values(), 0.5, 1e-10);
+  output = m[0] * m[1] + m[0];
+  EXPECT_NEAR(output.values(), 3.0, 1e-10);
+  output = sin(m[2]);
+  EXPECT_NEAR(output.values(), 0, 1e-10);
+}
+
+TEST(AutoDiffTest, GradentValueTest1) {
+  Vector a(2); a[0] = 1.0; a[1] = 1.0;
+  Vector b(2); b[0] = 2.0; b[1] = 2.0;
+  Vector c(2); c[0] = M_PI; c[1] = M_PI;
+
+  Vector o = (a * b + c.sin()).exp().log();
+  std::vector<double> goldensA { 2.0, 2.0 };
+  std::vector<double> goldensB { 1.0, 1.0 };
+  std::vector<double> goldensC { -1.0, -1.0 };
+
+  o.backward();
+
+  std::vector<double> testA = a.grad();
+  for (size_t i=0; i < testA.size(); i++) {
+    EXPECT_NEAR(goldensA[i], testA[i], 1e-10);
+  }
+
+  std::vector<double> testB = b.grad();
+  for (size_t i=0; i < testA.size(); i++) {
+    EXPECT_NEAR(goldensB[i], testB[i], 1e-10);
+  }
+
+  std::vector<double> testC = c.grad();
+  for (size_t i=0; i < testC.size(); i++) {
+    EXPECT_NEAR(goldensC[i], testC[i], 1e-10);
+  }
+
+}
+
+TEST(AutoDiffTest, GradentValueTest2) {
+  Vector a(2); a[0] = 1.0; a[1] = 1.0;
+  Vector b(2); b[0] = 2.0; b[1] = 2.0;
+  Vector a_b_mul = a * b;
+
+  std::vector<double> goldensA { 2.0, 2.0 };
+  std::vector<double> goldensB { 1.0, 1.0 };
+
+  a_b_mul.backward();
+
+  std::vector<double> testA = a.grad();
+  for (size_t i=0; i < testA.size(); i++) {
+    EXPECT_NEAR(goldensA[i], testA[i], 1e-10);
+  }
+  std::vector<double> testB = b.grad();
+  for (size_t i=0; i < testB.size(); i++) {
+    EXPECT_NEAR(goldensB[i], testB[i], 1e-10);
+  }
 }
 
 int main(int argc, char **argv) {

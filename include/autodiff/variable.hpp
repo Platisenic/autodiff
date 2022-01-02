@@ -42,15 +42,5 @@ struct Variable {
     }
 };
 
-std::vector<double> calcluateGradient(Variable &output, std::vector<Variable> &inputs) {
-    output.VarNodePtr->prop(1.0);
-    std::vector<double> gradients;
-    gradients.reserve(inputs.size());
-    for (auto &input : inputs) {
-        gradients.push_back(input.VarNodePtr->getGradient());
-        input.VarNodePtr->setGradient(0.0);
-    }
-    return gradients;
-}
 
 }  // namespace autodiff
